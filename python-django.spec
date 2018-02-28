@@ -3,6 +3,8 @@
 %{!?pyver: %define pyver %(%{__python} -c "import sys ; print sys.version[:5]")}
 
 %global         pkgname Django
+%global         srcname django
+%global         django_abi 1.4
 
 # Tests requiring Internet connections are disabled by default
 # pass --with internet to run them (e.g. when doing a local rebuild
@@ -15,7 +17,7 @@
 
 Name:           python-django
 Version:        1.4.5
-Release:        3.wc2%{?dist}
+Release:        4.wc1%{?dist}
 Summary:        A high-level Python Web framework
 
 Group:          Development/Languages
@@ -45,31 +47,45 @@ BuildRequires:  python-sphinx10
 # for testing
 BuildRequires:  python-simplejson
 
-Requires:       python-simplejson
-
-# allow users to use django with lowercase d
-Provides:       django = %{version}-%{release}
-Provides:       %{pkgname} = %{version}-%{release}
-Obsoletes:      %{pkgname} < %{obs_ver}
-
-
 %description
 Django is a high-level Python Web framework that encourages rapid
 development and a clean, pragmatic design. It focuses on automating as
 much as possible and adhering to the DRY (Don't Repeat Yourself)
 principle.
 
+%package -n python2-django
+Summary:        A high-level Python Web framework
+
+Requires:       python-simplejson
+
+# allow users to use django with lowercase d
+Provides:       django = %{version}-%{release}
+Provides:       python2-django = %{version}-%{release}
+Provides:       python2-django(abi) = %{django_abi}
+
+%{?python_provide:%python_provide python2-django}
+Provides:       %{pkgname} = %{version}-%{release}
+Obsoletes:      %{pkgname} < %{obs_ver}
+
+
+%description -n python2-django
+Django is a high-level Python Web framework that encourages rapid
+development and a clean, pragmatic design. It focuses on automating as
+much as possible and adhering to the DRY (Don't Repeat Yourself)
+principle.
+
 %if 0%{?rhel} > 4 || 0%{?fedora} >= 12
-%package doc
+%package -n python2-django-doc
 Summary:        Documentation for Django
 Group:          Documentation
 Requires:       %{name} = %{version}-%{release}
 
 Provides:       django-docs = %{version}-%{release}
+%{?python_provide:%python_provide python2-django-doc}
 Provides:       %{pkgname}-docs = %{version}-%{release}
 Obsoletes:      %{pkgname}-docs < %{obs_ver}
 
-%description doc
+%description -n python2-django-doc
 This package contains the documentation for the Django high-level
 Python Web framework.
 %endif
@@ -155,7 +171,7 @@ cd tests
 #./runtests.py --settings=test_sqlite
 
 
-%files -f django.lang 
+%files -f django.lang -n python2-django
 %defattr(-,root,root,-)
 %doc AUTHORS LICENSE README
 %{_bindir}/django-admin
@@ -316,13 +332,16 @@ cd tests
  
 
 %if 0%{?rhel} > 4 || 0%{?fedora} >= 12
-%files doc
+%files -n python2-django-doc
 %defattr(-,root,root,-)
 #%doc docs/_build/html/*/
 %endif
 
 
 %changelog
+* Wed Feb 28 2018 Brian J. Murrell <brian.murrell@intel.com> 1.4.5-4.wc1
+- Update to make compatible with EPEL 1.6.11.6-16.el7 packaging
+
 * Thu May 11 2017 Brian J. Murrell <brian.murrell@intel.com> 1.4.5-3.wc2
 - new package built with tito
 
